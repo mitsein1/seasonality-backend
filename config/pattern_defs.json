@@ -1,44 +1,26 @@
 {
-  "intraday": [
-    {
-      "params": {"tf": "H1", "start_hour": 9, "end_hour": 17},
-      "years_back": 5
-    },
-    {
-      "params": {"tf": "H4", "start_hour": 0, "end_hour": 23},
-      "years_back": 5
-    }
-  ],
-  "monthly": [
-    {"params": {"month": 1}, "years_back": 5},
-    {"params": {"month": 2}, "years_back": 5},
-    {"params": {"month": 3}, "years_back": 5},
-    {"params": {"month": 4}, "years_back": 5},
-    {"params": {"month": 5}, "years_back": 5},
-    {"params": {"month": 6}, "years_back": 5},
-    {"params": {"month": 7}, "years_back": 5},
-    {"params": {"month": 8}, "years_back": 5},
-    {"params": {"month": 9}, "years_back": 5},
-    {"params": {"month": 10}, "years_back": 5},
-    {"params": {"month": 11}, "years_back": 5},
-    {"params": {"month": 12}, "years_back": 5}
-  ],
-  "annual": [
-    {
-      "params": {"start_month": 1, "start_day": 1, "end_month": 3, "end_day": 31},
-      "years_back": 5
-    },
-    {
-      "params": {"start_month": 4, "start_day": 1, "end_month": 6, "end_day": 30},
-      "years_back": 5
-    },
-    {
-      "params": {"start_month": 7, "start_day": 1, "end_month": 9, "end_day": 30},
-      "years_back": 5
-    },
-    {
-      "params": {"start_month": 10, "start_day": 1, "end_month": 12, "end_day": 31},
-      "years_back": 5
-    }
-  ]
+  "intraday": {
+    "params": [
+      {"tf": "H1", "start_hour": 9, "end_hour": 17},
+      {"tf": "H4", "start_hour": 0, "end_hour": 23}
+    ],
+    "years_back": [5, 10, 15, 20]
+  },
+  "monthly": {
+    "params": [
+      {"month": 1}, {"month": 2}, {"month": 3}, {"month": 4},
+      {"month": 5}, {"month": 6}, {"month": 7}, {"month": 8},
+      {"month": 9}, {"month": 10}, {"month": 11}, {"month": 12}
+    ],
+    "years_back": [5, 10, 15, 20]
+  },
+  "annual": {
+    "params": [
+      {"start_month": 1, "start_day": 1, "end_month": 3, "end_day": 31},
+      {"start_month": 4, "start_day": 1, "end_month": 6, "end_day": 30},
+      {"start_month": 7, "start_day": 1, "end_month": 9, "end_day": 30},
+      {"start_month": 10, "start_day": 1, "end_month": 12, "end_day": 31}
+    ],
+    "years_back": [5, 10, 15, 20]
+  }
 }
