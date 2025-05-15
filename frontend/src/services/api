@@ -1,0 +1,51 @@
+import axios from 'axios';
+
+export interface ScreenerFilters {
+  patternType: 'intraday' | 'monthly' | 'annual';
+  yearsBack: number[];        // e.g. [5,10,15,20]
+  timeParams?: Record<string, any>; // pattern-specific params: { tf, start_hour, end_hour } or {month} or {start_month,...}
+  assetGroups?: string[];    // e.g. ['Crypto', 'Forex']
+  symbols?: string[];        // specific symbols filter
+  sortBy?: string;           // statistic key
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface StrategySummary {
+  id: number;
+  assetSymbol: string;
+  patternType: string;
+  params: Record<string, any>;
+  yearsBack: number;
+  stats: Record<string, number>;
+}
+
+const api = axios.create({
+  baseURL: '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+/**
+ * Fetch strategy summaries from screener endpoint with given filters.
+ */
+export async function fetchStrategies(filters: ScreenerFilters): Promise<StrategySummary[]> {
+  const params: any = {
+    patternType: filters.patternType,
+    yearsBack: filters.yearsBack,
+    sortBy: filters.sortBy,
+    sortOrder: filters.sortOrder,
+  };
+
+  if (filters.assetGroups) params.assetGroups = filters.assetGroups;
+  if (filters.symbols) params.symbols = filters.symbols;
+  if (filters.timeParams) {
+    // flatten timeParams into query
+    Object.entries(filters.timeParams).forEach(([key, val]) => {
+      params[key] = val;
+    });
+  }
+
+  const response = await api.get('/screener', { params });
+  return response.data as StrategySummary[];
+}
