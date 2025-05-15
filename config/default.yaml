@@ -1,0 +1,4 @@
+# configurazioni principali
+mt5:
+  date_from: -20 years
+  timeframes: [H1, H4, D1, W1, MN1]
