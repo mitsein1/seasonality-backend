@@ -1,0 +1,4 @@
+venv_py310/
+__pycache__/
+*.pyc
+mt5_history/
