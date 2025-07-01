@@ -1,10 +1,10 @@
-il daimport os
+import os
 from celery import Celery
 from celery.schedules import crontab
 from kombu import Exchange, Queue
 
 # ── Load settings from environment ──────────────────────────────────────────────
-DATABASE_URL   = os.getenv(
+DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql+psycopg2://seasonality_user:Silvio1989!@localhost:5432/seasonality"
 )
@@ -13,7 +13,6 @@ RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
 TIMEZONE       = os.getenv("TZ", "UTC")
 
 # ── Create and configure Celery app ─────────────────────────────────────────────
-# 'include' ensures tasks are registered even if modules are not auto-imported
 app = Celery(
     "seasonality_tasks",
     broker=BROKER_URL,
@@ -25,17 +24,15 @@ app = Celery(
         "backend.jobs.update_pattern_aggregates",
     ],
 )
-# alias for decorators in task modules
-tasks = app
 
 # ── Define custom queues ─────────────────────────────────────────────────────────
 app.conf.task_queues = (
     Queue('fetchers', Exchange('fetchers'), routing_key='fetchers'),
     Queue('computations', Exchange('computations'), routing_key='computations'),
 )
-app.conf.task_default_queue = 'fetchers'
-app.conf.task_default_exchange = 'fetchers'
-app.conf.task_default_routing_key = 'fetchers'
+app.conf.task_default_queue        = 'fetchers'
+app.conf.task_default_exchange     = 'fetchers'
+app.conf.task_default_routing_key  = 'fetchers'
 
 # ── Update core configuration ───────────────────────────────────────────────────
 app.conf.update(
@@ -70,13 +67,13 @@ app.conf.beat_schedule = {
         "schedule": crontab(hour=2, minute=0),
         "options": {"queue": "fetchers"},
     },
-    # Weekly pattern computation
+    # Weekly pattern computation every Sunday at 03:00
     "compute-patterns-weekly": {
         "task": "backend.jobs.compute_patterns.compute_patterns_task",
         "schedule": crontab(day_of_week="sun", hour=3, minute=0),
         "options": {"queue": "computations"},
     },
-    # Aggregates for intraday, monthly, annual patterns
+    # Aggregates intraday: every night at 03:00
     "agg_intraday_every_night": {
         "task": "backend.jobs.update_pattern_aggregates.update_all_intraday",
         "schedule": crontab(hour=3, minute=0),
@@ -88,6 +85,7 @@ app.conf.beat_schedule = {
         ],
         "options": {"queue": "computations"},
     },
+    # Aggregates monthly: every night at 03:30
     "agg_monthly_every_night": {
         "task": "backend.jobs.update_pattern_aggregates.update_all_monthly",
         "schedule": crontab(hour=3, minute=30),
@@ -99,6 +97,7 @@ app.conf.beat_schedule = {
         ],
         "options": {"queue": "computations"},
     },
+    # Aggregates annual: every night at 04:00
     "agg_annual_every_night": {
         "task": "backend.jobs.update_pattern_aggregates.update_all_annual",
         "schedule": crontab(hour=4, minute=0),
