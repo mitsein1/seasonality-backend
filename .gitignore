@@ -6,3 +6,8 @@ venv/
 
 # Cartella dei backup
 BACK UPs/
+
+# Byte-code Python
+__pycache__/
+*.pyc
+*.nbc
