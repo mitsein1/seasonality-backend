@@ -1,4 +1,31 @@
 # configurazioni principali
+
 mt5:
+  # scarica dati a partire da 20 anni fa fino a oggi
   date_from: -20 years
-  timeframes: [H1, H4, D1, W1, MN1]
+
+  # timeframe supportati
+  timeframes:
+    - H1
+    - H4
+    - D1
+    - W1
+    - MN1
+
+  # cartella base dove verranno creati i CSV
+  history_path: mt5_history
+
+  # qui specifichiamo solo i nomi dei gruppi MT5 radice
+  # i simboli verranno recuperati automaticamente da MT5
+  # (attenzione: deve corrispondere a quanto appare in MT5 sotto "Path")
+  groups:
+    - Cryptocurrencies
+    - Forex 
+    - Commodities
+    - Stocks
+    - Derivatives
+  
+  # PER CONNECTION CON CLIENT NODE
+  s3:
+    bucket: your-strategy-files-bucket
+    region: eu-central-1

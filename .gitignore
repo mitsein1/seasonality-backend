@@ -1,4 +1,8 @@
-venv_py310/
-__pycache__/
-*.pyc
-mt5_history/
+# Ambiente virtuale Python
+venv/
+
+# Cartella mt5 history
+"mt5_history"/
+
+# Cartella dei backup
+BACK UPs/

@@ -1,30 +1,37 @@
 from flask import Blueprint, jsonify
 from sqlalchemy.orm import sessionmaker
-
-from backend.db.models import Pattern, Asset
-from backend.app import get_engine
+from sqlalchemy import text
 
 seasonality_bp = Blueprint('seasonality', __name__, url_prefix='/api/seasonality')
 
 @seasonality_bp.route('', methods=['GET'])
 def seasonality():
-    engine = get_engine()
-    Session = sessionmaker(bind=engine)
+    # Import get_engine dentro la funzione per evitare circular import
+    from backend.app import get_engine
+    
+    # Inizializza sessione DB
+    Session = sessionmaker(bind=get_engine())
     session = Session()
 
-    # Distinct pattern types
-    pattern_types = [pt for (pt,) in session.query(Pattern.type).distinct().all()]
-    # Distinct years_back values, sorted
-    years_back = sorted({yb for (yb,) in session.query(Pattern.years_back).distinct().all()})
-    # Distinct asset groups
-    asset_groups = [ag for (ag,) in session.query(Asset.group).distinct().all()]
-    # Distinct symbols
-    symbols = [s for (s,) in session.query(Asset.symbol).distinct().all()]
+    # Query distinct values per filtro, usando text() per raw SQL
+    pattern_types = [row[0] for row in session.execute(
+        text("SELECT DISTINCT type FROM patterns")
+    ).fetchall()]
+    years_back = [row[0] for row in session.execute(
+        text("SELECT DISTINCT years_back FROM patterns")
+    ).fetchall()]
+    asset_groups = [row[0] for row in session.execute(
+        text("SELECT DISTINCT \"group\" FROM assets")
+    ).fetchall()]
+    symbols = [row[0] for row in session.execute(
+        text("SELECT DISTINCT symbol FROM assets")
+    ).fetchall()]
 
     session.close()
+
     return jsonify({
-        'patternTypes':    pattern_types,
-        'yearsBack':       years_back,
-        'assetGroups':     asset_groups,
-        'symbols':         symbols
+        'patternTypes': pattern_types,
+        'yearsBack':    years_back,
+        'assetGroups':  asset_groups,
+        'symbols':      symbols
     })

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-# TODO: inizializza il database
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from backend.db.models import Base
 
-def get_database_url():
-    # Legge da variabile ENV o config file
-    return os.getenv("DATABASE_URL", "sqlite:///./data.db")
+def get_root_db_url():
+    # Path assoluto alla root del progetto
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    DB_PATH = os.path.join(PROJECT_ROOT, 'data.db')
+    return f"sqlite:///{DB_PATH}"
 
 def init_db():
-    url = get_database_url()
+    url = get_root_db_url()
     engine = create_engine(url, echo=True, future=True)
     Base.metadata.create_all(engine)
     print(f"Tabelle create correttamente su {url}")

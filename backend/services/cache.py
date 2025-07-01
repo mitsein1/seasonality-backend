@@ -1,34 +1,74 @@
 import os
-import json
-from typing import Optional, Any
-import redis
+import pickle
+import logging
 
-# URL di Redis, es. redis://localhost:6379/1
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/1")
-redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+# ==================== VECCHIO IMPLEMENTAZIONE COMMENTATA ====================
+# try:
+#     import redis
+# except ImportError:
+#     redis = None
+#
+# # URL di Redis (usato anche da Celery); in locale punta a localhost:6379
+# REDIS_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+#
+# logger = logging.getLogger(__name__)
+#
+# # Provo a creare il client. Se fallisce, porto redis_client a None
+# if redis:
+#     try:
+#         redis_client = redis.Redis.from_url(REDIS_URL)
+#         # Provo una connessione di salute veloce
+#         redis_client.ping()
+#     except Exception as e:
+#         logger.warning(f"🔶 Non riesco a connettermi a Redis ({REDIS_URL}): {e}")
+#         redis_client = None
+# else:
+#     logger.warning("🔶 Redis non è installato, cache disabilitata")
+#     redis_client = None
+#
+# def get_cache(key: str):
+#     """
+#     Ritorna l’oggetto dal cache se presente, altrimenti None.
+#     In caso di errore di connessione, logga e restituisce None.
+#     """
+#     if not redis_client:
+#         return None
+#     try:
+#         raw = redis_client.get(key)
+#         if not raw:
+#             return None
+#         return pickle.loads(raw)
+#     except Exception as e:
+#         logger.warning(f"🔶 Redis GET errore per chiave {key}: {e}")
+#         return None
+#
+# def set_cache(key: str, value, ttl: int = None):
+#     """
+#     Salva in cache. Se ttl è passato, lo usa come scadenza in secondi.
+#     In caso di errore di connessione, logga e silently skip.
+#     """
+#     if not redis_client:
+#         return
+#     try:
+#         data = pickle.dumps(value)
+#         if ttl:
+#             redis_client.set(key, data, ex=ttl)
+#         else:
+#             redis_client.set(key, data)
+#     except Exception as e:
+#         logger.warning(f"🔶 Redis SET errore per chiave {key}: {e}")
+#=============================================================================
 
-def get_cached(key: str) -> Optional[Any]:
-    """
-    Restituisce il valore Python deserializzato se presente in cache, altrimenti None.
-    """
-    raw = redis_client.get(key)
-    if raw is None:
-        return None
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError:
-        return None
+logger = logging.getLogger(__name__)
 
-def set_cache(key: str, value: Any, expire_seconds: int = 300) -> None:
+def get_cache(key: str):
     """
-    Serializza in JSON e salva in Redis con TTL (default 5 minuti).
+    Cache disabilitata: forziamo sempre miss.
     """
-    redis_client.set(key, json.dumps(value), ex=expire_seconds)
+    return None
 
-def invalidate_cache(pattern: str) -> None:
+def set_cache(key: str, value, ttl: int = None):
     """
-    Elimina tutte le chiavi che corrispondono al pattern (glob-style).
-    Es: invalidate_cache('screener:*') rimuove tutte le cache dello screener.
+    Cache disabilitata: no-op.
     """
-    for k in redis_client.scan_iter(match=pattern):
-        redis_client.delete(k)
+    return
